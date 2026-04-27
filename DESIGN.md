@@ -3,22 +3,34 @@
 ## 1) Use Case Diagram
 
 ```mermaid
-usecaseDiagram
-    actor User
+flowchart LR
+    User[User]
 
-    rectangle "Password Manager" {
-        User --> (Register)
-        User --> (Verify Email)
-        User --> (Login)
-        User --> (Multi-Factor Authentication)
-        User --> (Reset Password)
-        User --> (View Dashboard)
-        User --> (Manage Vault Entries)
-        User --> (Manage Categories)
-        User --> (Generate Password)
-        User --> (Update Profile)
-        User --> (View Audit Logs)
-    }
+    subgraph "Password Manager"
+        Register((Register))
+        VerifyEmail((Verify Email))
+        Login((Login))
+        MFA((Multi-Factor Authentication))
+        ResetPassword((Reset Password))
+        ViewDashboard((View Dashboard))
+        ManageVaultEntries((Manage Vault Entries))
+        ManageCategories((Manage Categories))
+        GeneratePassword((Generate Password))
+        UpdateProfile((Update Profile))
+        ViewAuditLogs((View Audit Logs))
+    end
+
+    User --> Register
+    User --> VerifyEmail
+    User --> Login
+    User --> MFA
+    User --> ResetPassword
+    User --> ViewDashboard
+    User --> ManageVaultEntries
+    User --> ManageCategories
+    User --> GeneratePassword
+    User --> UpdateProfile
+    User --> ViewAuditLogs
 ```
 
 ---
