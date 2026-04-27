@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="messages">
+    <div th:if="${param.created}" class="alert alert-success alert-dismissible fade show" role="alert">
+        Record created successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${param.updated}" class="alert alert-success alert-dismissible fade show" role="alert">
+        Record updated successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${param.deleted}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        Record deleted successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        Something went wrong. Please try again.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+</body>
+</html>

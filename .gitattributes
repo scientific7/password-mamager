@@ -1,0 +1,18 @@
+# Auto-detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Mark binary files explicitly
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+
+# Java-specific diff driver (optional, for better diffs)
+*.java diff=java
+
+# Scripts should have executable permissions
+*.sh text eol=lf
+mvnw text eol=lf
+mvnw.cmd text eol=crlf

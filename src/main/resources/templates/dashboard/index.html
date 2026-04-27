@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Password Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<div class="d-flex app-shell">
+    <nav class="sidebar p-3">
+        <a th:href="@{/dashboard}" class="navbar-brand text-white mb-4 d-block">
+            Password Manager
+        </a>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a th:href="@{/dashboard}" class="nav-link active">Vault</a></li>
+            <li class="nav-item"><a th:href="@{/security}" class="nav-link">Security Dashboard</a></li>
+            <li class="nav-item"><a th:href="@{/vault/new}" class="nav-link">Add Entry</a></li>
+            <li class="nav-item"><a th:href="@{/generator}" class="nav-link">Generator</a></li>
+            <li class="nav-item"><a th:href="@{/categories}" class="nav-link">Categories</a></li>
+            <li class="nav-item"><a th:href="@{/audit}" class="nav-link">Activity</a></li>
+            <li class="nav-item"><a th:href="@{/profile/settings}" class="nav-link">Settings</a></li>
+        </ul>
+    </nav>
+
+    <div class="flex-grow-1 content-wrapper">
+        <nav class="navbar navbar-expand navbar-light bg-white border-bottom px-4">
+            <div class="container-fluid">
+                <form class="vault-filter-bar" th:action="@{/dashboard}" method="get">
+                    <input class="form-control" type="search" name="q"
+                           placeholder="Search vault"
+                           th:value="${query}">
+                    <select class="form-select" name="categoryId">
+                        <option value="">All categories</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat.id}"
+                                th:selected="${categoryId != null and categoryId == cat.id}"
+                                th:text="${cat.name}">Work</option>
+                    </select>
+                    <select class="form-select" name="filter">
+                        <option value="all" th:selected="${filter == null or filter == 'all'}">All items</option>
+                        <option value="weak" th:selected="${filter == 'weak'}">Weak</option>
+                        <option value="reused" th:selected="${filter == 'reused'}">Reused</option>
+                        <option value="old" th:selected="${filter == 'old'}">Old</option>
+                        <option value="favorites" th:selected="${filter == 'favorites'}">Favorites</option>
+                    </select>
+                    <button class="btn btn-outline-secondary" type="submit">Filter</button>
+                </form>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary theme-toggle" data-theme-toggle>
+                        Theme
+                    </button>
+                    <span class="user-chip" th:text="${user.fullName}">User Name</span>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container-fluid py-4 px-4">
+            <div class="page-heading">
+                <div>
+                    <p class="eyebrow">Secure vault</p>
+                    <h4 class="mb-1">Saved Accounts</h4>
+                    <p class="text-muted mb-0">Fast search, health checks, and export are ready when you need them.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/backup/export}" class="btn btn-outline-secondary">Export Backup</a>
+                    <a th:href="@{/vault/new}" class="btn btn-primary">+ New Entry</a>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-2 col-sm-6">
+                    <div class="dashboard-stat">
+                        <h6>Total Items</h6>
+                        <h3 th:text="${securityAudit.totalEntries}">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="dashboard-stat">
+                        <h6>Showing</h6>
+                        <h3 th:text="${entries != null ? #lists.size(entries) : 0}">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="dashboard-stat stat-danger">
+                        <h6>Weak</h6>
+                        <h3 th:text="${securityAudit.weakCount}">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="dashboard-stat stat-warning">
+                        <h6>Reused</h6>
+                        <h3 th:text="${securityAudit.reusedCount}">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="dashboard-stat stat-muted">
+                        <h6>Old</h6>
+                        <h3 th:text="${securityAudit.oldCount}">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="dashboard-stat stat-success">
+                        <h6>Health</h6>
+                        <h3 th:text="${securityAudit.healthLabel}">Good</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-lg-8">
+                    <div th:if="${#lists.isEmpty(entries)}" class="empty-state">
+                        <div class="empty-icon">Lock</div>
+                        <h5>No matching credentials yet</h5>
+                        <p>Add your first login or adjust the filters above.</p>
+                        <a th:href="@{/vault/new}" class="btn btn-primary">Add credential</a>
+                    </div>
+
+                    <div th:if="${!#lists.isEmpty(entries)}" class="table-responsive vault-panel">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>Login</th>
+                                <th>Username</th>
+                                <th>Category</th>
+                                <th>Health</th>
+                                <th>Updated</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="entry : ${entries}">
+                                <td>
+                                    <div class="entry-title">
+                                        <span class="site-icon" th:text="${#strings.substring(entry.title, 0, 1)}">G</span>
+                                        <div>
+                                            <strong th:text="${entry.title}">Gmail</strong>
+                                            <div>
+                                                <a th:if="${entry.websiteUrl != null}"
+                                                   th:href="${entry.websiteUrl}"
+                                                   target="_blank" rel="noopener noreferrer"
+                                                   th:text="${entry.websiteUrl}">https://example.com</a>
+                                                <span th:if="${entry.websiteUrl == null}" class="text-muted-small">No website</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:text="${entry.username}">user@example.com</span>
+                                    <button type="button"
+                                            class="icon-btn ms-2"
+                                            title="Copy username"
+                                            th:attr="data-copy-value=${entry.username}">Copy</button>
+                                </td>
+                                <td>
+                                    <span th:if="${entry.categoryName != null}"
+                                          class="badge badge-category"
+                                          th:text="${entry.categoryName}">Social</span>
+                                    <span th:if="${entry.categoryName == null}" class="text-muted-small">None</span>
+                                </td>
+                                <td>
+                                    <span class="health-badge"
+                                          th:classappend="${entry.passwordStrengthLabel == 'Strong'} ? ' health-strong' : (${entry.passwordStrengthLabel == 'Medium'} ? ' health-medium' : ' health-weak')"
+                                          th:text="${entry.passwordStrengthLabel}">Strong</span>
+                                    <span th:if="${entry.passwordReused}" class="health-badge health-reused">Reused</span>
+                                    <span th:if="${entry.passwordOld}" class="health-badge health-old">Old</span>
+                                </td>
+                                <td th:text="${#temporals.format(entry.updatedAt, 'dd-MM-yyyy HH:mm')}">18-04-2026 00:00</td>
+                                <td class="text-end">
+                                    <a th:href="@{|/vault/${entry.id}|}" class="btn btn-sm btn-outline-secondary">View</a>
+                                    <a th:href="@{|/vault/${entry.id}/edit|}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form th:action="@{|/vault/${entry.id}/delete|}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Delete this entry?');">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="side-stack">
+                        <section class="mini-panel">
+                            <div class="mini-panel-header">
+                                <h6>Recently Used</h6>
+                                <span th:text="${#lists.size(recentEntries)}">0</span>
+                            </div>
+                            <p th:if="${#lists.isEmpty(recentEntries)}" class="text-muted-small mb-0">Viewed items will appear here.</p>
+                            <a th:each="entry : ${recentEntries}"
+                               th:href="@{|/vault/${entry.id}|}"
+                               class="mini-entry">
+                                <span th:text="${entry.title}">Gmail</span>
+                                <small th:text="${entry.categoryName != null ? entry.categoryName : 'No category'}">Work</small>
+                            </a>
+                        </section>
+
+                        <section class="mini-panel">
+                            <div class="mini-panel-header">
+                                <h6>Most Used</h6>
+                                <span th:text="${#lists.size(mostUsedEntries)}">0</span>
+                            </div>
+                            <p th:if="${#lists.isEmpty(mostUsedEntries)}" class="text-muted-small mb-0">Frequently opened logins will appear here.</p>
+                            <a th:each="entry : ${mostUsedEntries}"
+                               th:href="@{|/vault/${entry.id}|}"
+                               class="mini-entry">
+                                <span th:text="${entry.title}">Gmail</span>
+                                <small th:text="${entry.accessCount + ' views'}">3 views</small>
+                            </a>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="toast-copy" data-toast-copy>Copied to clipboard</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
