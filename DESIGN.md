@@ -213,15 +213,15 @@ flowchart TD
 ## 6) Component Diagram
 
 ```mermaid
-graph TB
-    Browser[User Browser]
-    WebApp[Web UI (Thymeleaf)]
-    Controllers[Controllers]
-    Services[Service Layer]
-    Security[Security Layer]
-    Repositories[Repository Layer]
-    Database[MySQL Database]
-    EmailServer[SMTP / Email Service]
+flowchart TB
+    Browser["User Browser"]
+    WebApp["Web UI (Thymeleaf)"]
+    Controllers["Controllers"]
+    Services["Service Layer"]
+    Security["Security Layer"]
+    Repositories["Repository Layer"]
+    Database["MySQL Database"]
+    EmailServer["SMTP / Email Service"]
 
     Browser --> WebApp
     WebApp --> Controllers
@@ -234,7 +234,7 @@ graph TB
     Security --> MfaVerificationFilter
     Security --> MfaAuthenticationSuccessHandler
     CustomUserDetailsService --> Repositories
-    Services --> PasswordEncoder[Password Encoder]
+    Services --> PasswordEncoder["Password Encoder"]
 ```
 
 ---
@@ -242,11 +242,11 @@ graph TB
 ## 7) Deployment Diagram
 
 ```mermaid
-graph LR
-    Browser[User Browser]
-    AppServer[Spring Boot App\n(Java 26, Spring Boot 4.0.5)]
-    MySQL[MySQL Database]
-    SMTP[SMTP / Email Server]
+flowchart LR
+    Browser["User Browser"]
+    AppServer["Spring Boot App<br>(Java 26, Spring Boot 4.0.5)"]
+    MySQL["MySQL Database"]
+    SMTP["SMTP / Email Server"]
 
     Browser -->|HTTPS / HTTP| AppServer
     AppServer -->|JDBC| MySQL
